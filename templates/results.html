@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Head CT Scan Analysis Results</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2980b9;
+      --dark-color: #2c3e50;
+      --light-color: #ecf0f1;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-image: url('static/demo1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+      min-height: 100vh;
+    }
+    
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+    
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.6) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white !important;
+      font-size: 1.2rem;
+    }
+    
+    .page-header {
+      color: white;
+      text-align: center;
+      padding-top: 3rem;
+      margin-bottom: 2rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .results-container {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      margin: 2rem auto 4rem;
+    }
+    
+    .image-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+      transition: transform 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .image-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    .image-card .card-header {
+      background-color: var(--dark-color);
+      color: white;
+      text-align: center;
+      padding: 12px;
+      font-weight: 500;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    
+    .image-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      padding: 15px;
+    }
+    
+    .result-details {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      height: 100%;
+    }
+    
+    .result-details h5 {
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      color: var(--dark-color);
+    }
+    
+    .status-normal {
+      color: var(--success-color);
+      font-weight: 600;
+    }
+    
+    .status-stroke {
+      color: var(--danger-color);
+      font-weight: 600;
+    }
+    
+    .recommendation-list {
+      padding-left: 20px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .recommendation-list li {
+      margin-bottom: 5px;
+    }
+    
+    .result-section-title {
+      color: var(--dark-color);
+      font-weight: 600;
+      margin-top: 15px;
+      font-size: 1.1rem;
+    }
+    
+    .alert {
+      border-radius: 5px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-brain me-2"></i>Head CT Scan Analysis
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="userlog.html">
+              <i class="fas fa-clipboard-check me-1"></i> Recheck
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="graph.html">
+              <i class="fas fa-chart-line me-1"></i> Graph
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">
+              <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    {% if msg %}
+    <div class="alert alert-warning alert-dismissible fade show mt-4">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <strong>Warning!</strong> {{msg}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+    
+    <h1 class="page-header">Head CT Scan Analysis Results</h1>
+    
+    {% if status %}
+    <div class="results-container">
+      <div class="row">
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="image-card">
+            <div class="card-header">
+              <i class="fas fa-image me-2"></i>Selected Image
+            </div>
+            {% if ImageDisplay %}
+            <img src="{{ImageDisplay}}" alt="Selected Brain Scan" class="img-fluid">
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="image-card">
+            <div class="card-header">
+              <i class="fas fa-adjust me-2"></i>Gray Scale
+            </div>
+            {% if ImageDisplay1 %}
+            <img src="{{ImageDisplay1}}" alt="Gray Scale Image" class="img-fluid">
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="image-card">
+            <div class="card-header">
+              <i class="fas fa-border-style me-2"></i>Edge Detection
+            </div>
+            {% if ImageDisplay2 %}
+            <img src="{{ImageDisplay2}}" alt="Edge Detection" class="img-fluid">
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="image-card">
+            <div class="card-header">
+              <i class="fas fa-th me-2"></i>Threshold Detection
+            </div>
+            {% if ImageDisplay3 %}
+            <img src="{{ImageDisplay3}}" alt="Threshold Detection" class="img-fluid">
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="image-card">
+            <div class="card-header">
+              <i class="fas fa-sliders-h me-2"></i>Image Sharpening
+            </div>
+            {% if ImageDisplay4 %}
+            <img src="{{ImageDisplay4}}" alt="Image Sharpening" class="img-fluid">
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="result-details">
+            <h5 class="text-center mb-4">
+              <i class="fas fa-clipboard-list me-2"></i>Analysis Results
+            </h5>
+            
+            {% if status %}
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Status:</span> 
+                {% if status == "normal" %}
+                  <span class="status-normal">
+                    <i class="fas fa-check-circle me-1"></i>Normal
+                  </span>
+                {% else %}
+                  <span class="status-stroke">
+                    <i class="fas fa-exclamation-triangle me-1"></i>{{status}}
+                  </span>
+                {% endif %}
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="fw-bold">Prediction Confidence:</span>
+                <span>{{status2}}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="fw-bold">Chat with explainable AI</span>
+                <button class="btn btn-primary" onclick="window.location.href='https://chat.openai.com/'">
+                  <i class="fas fa-comments me-1"></i>Chat Now</button>
+              </div>
+              
+              <!-- {% if status != "normal" %}
+                <p class="result-section-title mt-4">
+                  <i class="fas fa-hospital me-2"></i>{{Treatment}}
+                </p>
+                <ul class="recommendation-list">
+                  {% for Treatment in Treatment1 %}
+                    <li>{{Treatment}}</li>
+                  {% endfor %}
+                </ul>
+                
+                <p class="result-section-title">
+                  <i class="fas fa-utensils me-2"></i>{{FoodRecommendation}}
+                </p>
+                <ul class="recommendation-list">
+                  {% for FoodRecommendation in FoodRecommendation1 %}
+                    <li>{{FoodRecommendation}}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %} -->
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- jQuery (still needed for certain functionality) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+</html>

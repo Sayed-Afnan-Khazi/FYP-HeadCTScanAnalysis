@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Head CT Scan Analysis</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2980b9;
+      --dark-color: #2c3e50;
+      --light-color: #ecf0f1;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-image: url('static/demo1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+    
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.6) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: white !important;
+      font-size: 1.2rem;
+    }
+    
+    .graph-container {
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      color: white;
+      margin: 40px 0;
+      transition: all 0.3s ease;
+    }
+    
+    .graph-container h4 {
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--light-color);
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+    
+    .graph-container h5 {
+      color: var(--primary-color);
+      font-weight: 500;
+      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .graph-img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+      max-height: 640px;
+      object-fit: contain;
+      margin: 0 auto;
+      display: block;
+    }
+    
+    .graph-img:hover {
+      transform: scale(1.02);
+    }
+    
+    hr {
+      background-color: rgba(255, 255, 255, 0.2);
+      height: 1px;
+      border: none;
+      margin: 25px 0;
+    }
+    
+    .loader {
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top: 5px solid var(--primary-color);
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 1s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-brain me-2"></i>Brain Scan Analysis
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="userlog.html">
+              <i class="fas fa-home me-1"></i> Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="graph.html">
+              <i class="fas fa-chart-bar me-1"></i> Graph
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Graphs Content -->
+  <div class="container">
+    <!-- Loader (will be hidden once page loads) -->
+    <div id="js-preloader" class="text-center my-5">
+      <div class="loader"></div>
+      <p class="text-white mt-3">Loading analysis results...</p>
+    </div>
+
+    <!-- Graph Content -->
+    <div class="row">
+      <div class="col-lg-12">
+        {% if img %}
+        <div class="graph-container fade-in">
+          <h4><i class="fas fa-chart-pie me-2"></i>COUNT PLOT for {{col}}</h4>
+          <hr>
+          <img src="{{img}}" class="graph-img" alt="Count Plot">
+        </div>
+        {% endif %}
+        
+        {% for i in range(2) %}
+        <div class="graph-container fade-in">
+          <h5><i class="fas fa-chart-line me-2"></i>{{content[i]}}</h5>
+          <hr>
+          <img src="{{images[i]}}" class="graph-img" alt="Graph {{i+1}}">
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <script>
+    $(window).on('load', function() {
+      // Hide preloader when page is loaded
+      $('#js-preloader').fadeOut('slow');
+    });
+    
+    // Add fade-in effect to elements as they appear in viewport
+    $(document).ready(function() {
+      $(window).scroll(function() {
+        $('.graph-container').each(function() {
+          var bottom_of_element = $(this).offset().top + $(this).outerHeight() / 3;
+          var bottom_of_window = $(window).scrollTop() + $(window).height();
+          
+          if(bottom_of_window > bottom_of_element) {
+            $(this).addClass('fade-in');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html></li>
