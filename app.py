@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, request
 import sqlite3
+from werkzeug.utils import secure_filename
 import os
 import numpy as np
 from tensorflow.keras.models import load_model
@@ -122,85 +123,112 @@ def graph():
 
 @app.route('/image', methods=['GET', 'POST'])
 def image():
-    print(request.form)
     if request.method == 'POST':
-        dirPath = "static/images"
-        fileList = os.listdir(dirPath)
-        for fileName in fileList:
-            os.remove(dirPath + "/" + fileName)
-        fileName=request.form['filename']
-        dst = "static/images"
+        try:
+            # Clear previous images
+            dirPath = os.path.join("static", "images")
+            if os.path.exists(dirPath):
+                for fileName in os.listdir(dirPath):
+                    file_path = os.path.join(dirPath, fileName)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+            else:
+                os.makedirs(dirPath)
+            
+            # Handle both direct file upload and filename from test directory
+            if 'file' in request.files and request.files['file'].filename != '':
+                # Direct file upload
+                file = request.files['file']
+                # Secure the filename
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(dirPath, filename)
+                file.save(filepath)
+            elif 'filename' in request.form:
+                # Using existing file from test directory
+                filename = secure_filename(request.form['filename'])
+                source = os.path.join("test", filename)
+                filepath = os.path.join(dirPath, filename)
+                
+                if os.path.exists(source):
+                    shutil.copy(source, filepath)
+                else:
+                    return render_template('userlog.html', error="File not found in test directory")
+            else:
+                return render_template('userlog.html', error="No file uploaded")
+
+            # Read the image for processing
+            image = cv2.imread(filepath)
+            if image is None:
+                return render_template('userlog.html', error="Invalid image file")
+            
+            # Process the image
+            processed_images = process_image(image)
+            
+            # Get prediction
+            predicted_class, accuracy = predict_image(filepath)
+            
+            # Map prediction to label using dictionary instead of if-elif
+            condition_map = {
+                "Epidural_Hemorrhage": "Epidural_Hemorrhage",
+                "Fracture_Yes_No": "Fracture_Yes_No",
+                "hemorrhagic_stroke": "hemorrhagic_stroke",
+                "Intraparenchymal_Hemorrhage": "Intraparenchymal_Hemorrhage",
+                "Intraventricular_Hemorrhage": "Intraventricular_Hemorrhage",
+                "ischemic_stroke": "ischemic_stroke",
+                "No_Hemorrhage": "No_Hemorrhage",
+                "normal": "normal",
+                "Sinusitis_Negative": "Sinusitis_Negative",
+                "Sinusitis_Positive": "Sinusitis_Positive",
+                "Subarachnoid_Hemorrhage": "Subarachnoid_Hemorrhage",
+                "Subdural_Hemorrhage": "Subdural_Hemorrhage"
+            }
+            
+            str_label = condition_map.get(predicted_class, "Unknown Condition")
+            
+            return render_template('results.html', 
+                                  status=str_label,
+                                  status2=f'{accuracy}',
+                                  ImageDisplay=f"{APP_URL}/static/images/{filename}",
+                                  ImageDisplay1=f"{APP_URL}/static/{processed_images['gray']}",
+                                  ImageDisplay2=f"{APP_URL}/static/{processed_images['edges']}",
+                                  ImageDisplay3=f"{APP_URL}/static/{processed_images['threshold']}",
+                                  ImageDisplay4=f"{APP_URL}/static/{processed_images['sharpened']}")
         
-        shutil.copy("test/"+fileName, dst)
-        image = cv2.imread("test/"+fileName)
-        # #color conversion
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite('static/gray.jpg', gray_image)
-        # #apply the Canny edge detection
-        edges = cv2.Canny(image, 250, 254)
-        cv2.imwrite('static/edges.jpg', edges)
-        # #apply thresholding to segment the image
-        retval2,threshold2 = cv2.threshold(gray_image,128,255,cv2.THRESH_BINARY)
-        cv2.imwrite('static/threshold.jpg', threshold2)
-        # # create the sharpening kernel
-        kernel_sharpening = np.array([[-1,-1,-1],
-                                     [-1, 9,-1],
-                                    [-1,-1,-1]])
-
-        # # apply the sharpening kernel to the image
-        sharpened =cv2.filter2D(image, -1, kernel_sharpening)
-
-        # save the sharpened image
-        cv2.imwrite('static/sharpened.jpg', sharpened)
-
-        predicted_class, accuracy = predict_image("test/"+fileName)
-        print("Predicted class:", predicted_class)
-        print("Accuracy is:", accuracy)
-       
-        f = open('acc.txt', 'w')
-        f.write(str(accuracy))
-        f.close()
-        str_label=""
-        accuracy=""
-        if predicted_class =="Epidural_Hemorrhage":
-            str_label="Epidural_Hemorrhage"
-        elif predicted_class =="Fracture_Yes_No":
-            str_label="Fracture_Yes_No"
-        elif predicted_class =="hemorrhagic_stroke":
-            str_label="hemorrhagic_stroke"
-        elif predicted_class =="Intraparenchymal_Hemorrhage":
-            str_label="Intraparenchymal_Hemorrhage"
-        elif predicted_class =="Intraventricular_Hemorrhage":
-            str_label="Intraventricular_Hemorrhage"
-        elif predicted_class =="ischemic_stroke":
-            str_label="ischemic_stroke"
-        elif predicted_class =="No_Hemorrhage":
-            str_label="No_Hemorrhage"
-        elif predicted_class =="normal":
-            str_label="normal"
-        elif predicted_class =="Sinusitis_Negative":
-            str_label="Sinusitis_Negative"
-        elif predicted_class =="Sinusitis_Positive":
-            str_label="Sinusitis_Positive"
-
-        elif predicted_class =="Subarachnoid_Hemorrhage":
-            str_label="Subarachnoid_Hemorrhage"
-        elif predicted_class =="Subdural_Hemorrhage":
-            str_label="Subdural_Hemorrhage"
-        f = open('acc.txt', 'r')
-        accuracy = f.read()
-        f.close()
-        print(accuracy)
-        return render_template('results.html', status=str_label,status2=f'{accuracy}',ImageDisplay=f"{APP_URL}/static/images/"+fileName,
-                               ImageDisplay1=f"{APP_URL}/static/gray.jpg",
-                               ImageDisplay2=f"{APP_URL}/static/edges.jpg",
-                               
-                               ImageDisplay3=f"{APP_URL}/static/threshold.jpg",
-                               ImageDisplay4=f"{APP_URL}/static/sharpened.jpg")
+        except Exception as e:
+            return render_template('userlog.html', error=f"Error processing image: {str(e)}")
+            
     return render_template('userlog.html')
 
-
-
+# Helper function to process images
+def process_image(image):
+    output_paths = {}
+    
+    # Color conversion
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    output_paths['gray'] = 'gray.jpg'
+    cv2.imwrite(os.path.join('static', output_paths['gray']), gray_image)
+    
+    # Apply the Canny edge detection
+    edges = cv2.Canny(image, 250, 254)
+    output_paths['edges'] = 'edges.jpg'
+    cv2.imwrite(os.path.join('static', output_paths['edges']), edges)
+    
+    # Apply thresholding to segment the image
+    retval2, threshold2 = cv2.threshold(gray_image, 128, 255, cv2.THRESH_BINARY)
+    output_paths['threshold'] = 'threshold.jpg'
+    cv2.imwrite(os.path.join('static', output_paths['threshold']), threshold2)
+    
+    # Create the sharpening kernel
+    kernel_sharpening = np.array([[-1, -1, -1],
+                                 [-1, 9, -1],
+                                 [-1, -1, -1]])
+    
+    # Apply the sharpening kernel to the image
+    sharpened = cv2.filter2D(image, -1, kernel_sharpening)
+    output_paths['sharpened'] = 'sharpened.jpg'
+    cv2.imwrite(os.path.join('static', output_paths['sharpened']), sharpened)
+    
+    return output_paths
 
 @app.route('/logout')
 def logout():

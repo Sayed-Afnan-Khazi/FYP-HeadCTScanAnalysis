@@ -171,15 +171,39 @@
     <div class="upload-container">
       <h2><i class="fas fa-cloud-upload-alt me-2"></i>Select Image</h2>
       <hr>
-      <form action="{{url_for('image')}}" method="POST" >
-        <div class="mb-3">
-          <input type="file" class="file-upload" id="file" name="filename" accept="image/*" required>
-        </div>
-        <button type="submit" class="btn btn-analyze">
-          <i class="fas fa-search-plus me-2"></i>Analyze Image
-        </button>
+      <form action="{{url_for('image')}}" method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <input type="file" class="file-upload" id="file" name="file" accept="image/*" onchange="previewImage(this)">
+      </div>
+      <div class="mb-3" id="imagePreviewContainer" style="display: none;">
+        <img id="imagePreview" class="img-fluid rounded" style="max-height: 200px; margin-top: 10px;" alt="Image Preview">
+      </div>
+      <button type="submit" class="btn btn-analyze">
+        <i class="fas fa-search-plus me-2"></i>Analyze Image
+      </button>
       </form>
     </div>
+
+    <script>
+      function previewImage(input) {
+      const previewContainer = document.getElementById('imagePreviewContainer');
+      const preview = document.getElementById('imagePreview');
+      
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+        preview.src = e.target.result;
+        previewContainer.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.src = '';
+        previewContainer.style.display = 'none';
+      }
+      }
+    </script>
   </div>
 
   <!-- Bootstrap JS Bundle with Popper -->
