@@ -2,3 +2,5 @@
 *.h5
 Test/
 Train/
+medgemma/
+.env

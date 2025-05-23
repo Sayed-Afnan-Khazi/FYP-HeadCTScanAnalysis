@@ -8,19 +8,11 @@ import pickle
 import shutil
 import cv2
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
-from tensorflow.keras.preprocessing.image import  img_to_array , array_to_img
 import numpy as np  # dealing with arrays
 
-from random import shuffle  # mixing up or currently ordered data that might lead our network astray in training.
-
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
-import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import load_img,img_to_array
-from tensorflow.keras.preprocessing import image
-from keras.preprocessing import image
 
+from explainable_ai import get_response
 
 APP_URL = 'http://127.0.0.1:5004'
 
@@ -143,16 +135,16 @@ def image():
                 filename = secure_filename(file.filename)
                 filepath = os.path.join(dirPath, filename)
                 file.save(filepath)
-            elif 'filename' in request.form:
-                # Using existing file from test directory
-                filename = secure_filename(request.form['filename'])
-                source = os.path.join("test", filename)
-                filepath = os.path.join(dirPath, filename)
+            # elif 'filename' in request.form:
+            #     # Using existing file from test directory
+            #     filename = secure_filename(request.form['filename'])
+            #     source = os.path.join("test", filename)
+            #     filepath = os.path.join(dirPath, filename)
                 
-                if os.path.exists(source):
-                    shutil.copy(source, filepath)
-                else:
-                    return render_template('userlog.html', error="File not found in test directory")
+            #     if os.path.exists(source):
+            #         shutil.copy(source, filepath)
+            #     else:
+            #         return render_template('userlog.html', error="File not found in test directory")
             else:
                 return render_template('userlog.html', error="No file uploaded")
 
@@ -167,7 +159,7 @@ def image():
             # Get prediction
             predicted_class, accuracy = predict_image(filepath)
             
-            # Map prediction to label using dictionary instead of if-elif
+            # Map prediction to label using dictionary
             condition_map = {
                 "Epidural_Hemorrhage": "Epidural_Hemorrhage",
                 "Fracture_Yes_No": "Fracture_Yes_No",
@@ -184,10 +176,12 @@ def image():
             }
             
             str_label = condition_map.get(predicted_class, "Unknown Condition")
+            explainable_ai_response = get_response(filepath,prompt=f"This scan is predicted to have an {str_label}.")
             
             return render_template('results.html', 
                                   status=str_label,
                                   status2=f'{accuracy}',
+                                  explainable_ai_response=explainable_ai_response,
                                   ImageDisplay=f"{APP_URL}/static/images/{filename}",
                                   ImageDisplay1=f"{APP_URL}/static/{processed_images['gray']}",
                                   ImageDisplay2=f"{APP_URL}/static/{processed_images['edges']}",
