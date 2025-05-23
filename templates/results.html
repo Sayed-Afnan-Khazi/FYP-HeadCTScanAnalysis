@@ -263,6 +263,10 @@
                   <span class="status-normal">
                     <i class="fas fa-check-circle me-1"></i>Normal
                   </span>
+                {% elif status == "Sinusitis_Negative" %}
+                  <span class="status-normal">
+                    <i class="fas fa-check-circle me-1"></i>Sinusitis Negative
+                  </span>
                 {% else %}
                   <span class="status-stroke">
                     <i class="fas fa-exclamation-triangle me-1"></i>{{status}}
@@ -274,31 +278,39 @@
                 <span class="fw-bold">Prediction Confidence:</span>
                 <span>{{status2}}</span>
               </div>
-              <div class="d-flex justify-content-between align-items-center mt-3">
-                <span class="fw-bold">Explainable AI</span>
-                <p>{{explainable_ai_response}}</p>
-              </div>
               
-              <!-- {% if status != "normal" %}
-                <p class="result-section-title mt-4">
-                  <i class="fas fa-hospital me-2"></i>{{Treatment}}
-                </p>
-                <ul class="recommendation-list">
-                  {% for Treatment in Treatment1 %}
-                    <li>{{Treatment}}</li>
-                  {% endfor %}
-                </ul>
-                
-                <p class="result-section-title">
-                  <i class="fas fa-utensils me-2"></i>{{FoodRecommendation}}
-                </p>
-                <ul class="recommendation-list">
-                  {% for FoodRecommendation in FoodRecommendation1 %}
-                    <li>{{FoodRecommendation}}</li>
-                  {% endfor %}
-                </ul>
-              {% endif %} -->
             {% endif %}
+          </div>
+        </div>
+        
+        <!-- New Card for Explainable AI -->
+        <div class="col-lg-12 mb-4">
+          <div class="result-details">
+            <h5 class="text-center mb-4">
+              <i class="fas fa-lightbulb me-2"></i>Explainable AI
+            </h5>
+            <div>
+              {{ explainable_ai_response|safe }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Disclaimer Card -->
+        <div class="col-lg-12 mb-4">
+          <div class="result-details">
+            <h5 class="text-center mb-4">
+              <i class="fas fa-exclamation-triangle me-2"></i>Disclaimer
+            </h5>
+            <div class="alert alert-warning" role="alert">
+              <p class="mb-0">
+          <strong>Important:</strong> The Explainable AI insights and analysis outcomes provided by this tool should be used with caution.
+          It is essential to consult a qualified radiologist or medical professional for any diagnosis or treatment decisions.
+              </p>
+              <hr>
+              <p class="mb-0">
+          This tool is a proof of concept and is intended for use in "human-in-the-loop" systems, augmenting, but not replacing, professional medical expertise.
+              </p>
+            </div>
           </div>
         </div>
       </div>

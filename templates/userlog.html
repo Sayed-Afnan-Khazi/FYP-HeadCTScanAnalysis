@@ -178,8 +178,9 @@
       <div class="mb-3" id="imagePreviewContainer" style="display: none;">
         <img id="imagePreview" class="img-fluid rounded" style="max-height: 200px; margin-top: 10px;" alt="Image Preview">
       </div>
-      <button type="submit" class="btn btn-analyze">
-        <i class="fas fa-search-plus me-2"></i>Analyze Image
+      <button type="submit" class="btn btn-analyze" id="analyzeBtn">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+        <span class="button-text"><i class="fas fa-search-plus me-2"></i>Analyze Image</span>
       </button>
       </form>
     </div>
@@ -203,6 +204,21 @@
         previewContainer.style.display = 'none';
       }
       }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form[action="{{url_for("image")}}"]');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const spinner = analyzeBtn.querySelector('.spinner-border');
+        const buttonText = analyzeBtn.querySelector('.button-text');
+
+        if (form && analyzeBtn && spinner && buttonText) {
+          form.addEventListener('submit', function() {
+            analyzeBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            buttonText.style.display = 'none';
+          });
+        }
+      });
     </script>
   </div>
 

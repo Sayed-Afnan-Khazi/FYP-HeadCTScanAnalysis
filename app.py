@@ -6,6 +6,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import pickle
 import shutil
+from markdown import markdown
 import cv2
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import numpy as np  # dealing with arrays
@@ -181,7 +182,7 @@ def image():
             return render_template('results.html', 
                                   status=str_label,
                                   status2=f'{accuracy}',
-                                  explainable_ai_response=explainable_ai_response,
+                                  explainable_ai_response=markdown(explainable_ai_response),
                                   ImageDisplay=f"{APP_URL}/static/images/{filename}",
                                   ImageDisplay1=f"{APP_URL}/static/{processed_images['gray']}",
                                   ImageDisplay2=f"{APP_URL}/static/{processed_images['edges']}",
