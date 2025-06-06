@@ -61,7 +61,7 @@ def userlog():
         name = request.form['name']
         password = request.form['password']
 
-        query = "SELECT name, password FROM user WHERE name = '"+name+"' AND password= '"+password+"'"
+        query = "SELECT name, password FROM user WHERE name = '"+name+"' AND password= '"+password+"'" # 1000% SQL Injectable.
         cursor.execute(query)
 
         result = cursor.fetchall()
@@ -91,7 +91,7 @@ def userreg():
         command = """CREATE TABLE IF NOT EXISTS user(name TEXT, password TEXT, mobile TEXT, email TEXT)"""
         cursor.execute(command)
 
-        cursor.execute("INSERT INTO user VALUES ('"+name+"', '"+password+"', '"+mobile+"', '"+email+"')")
+        cursor.execute("INSERT INTO user VALUES ('"+name+"', '"+password+"', '"+mobile+"', '"+email+"')") # 1000% SQL Injectable.
         connection.commit()
 
         return render_template('index.html', msg='Successfully Registered')
