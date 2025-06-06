@@ -1,3 +1,4 @@
 .venv/
 medgemma/
 .env
+__pycache__/
